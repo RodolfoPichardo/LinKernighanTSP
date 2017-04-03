@@ -1,4 +1,5 @@
 This is intended as a list of things that need to be implemented or modified:
+    - Implement the actual algorithm!!!
     - Must modify the Point class to be able to calculate distance between the two points.
     - Change the name from Point.java to City.java.
     - Add another instance variable to store the id.
