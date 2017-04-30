@@ -22,7 +22,8 @@ Currently, the code is ran by compiling all the files and running the Main class
 ## Resources
 
 - Original Paper by S. Lin and B. Kernighan
-Lin, Shen; Kernighan, B. W. (1973). "An Effective Heuristic Algorithm for the Traveling-Salesman Problem". *Operations Research*. **21** (2): 498–516. doi:(10.1287/opre.21.2.498)[https://eng.ucmerced.edu/people/yzhang/papers/Heuristic/Lin_Kernighan].
+Lin, Shen; Kernighan, B. W. (1973). "An Effective Heuristic Algorithm for the Traveling-Salesman Problem". *Operations Research*. **21** (2): 498–516. doi:[10.1287/opre.21.2.498](https://eng.ucmerced.edu/people/yzhang/papers/Heuristic/Lin_Kernighan).
 - Waterloo TSP test data
-[http://www.math.uwaterloo.ca/tsp/data/](http://www.math.uwaterloo.ca/tsp/data/)
+[link](http://www.math.uwaterloo.ca/tsp/data/)
+
 **NOTE:** we are currently using a different format for our test data.
