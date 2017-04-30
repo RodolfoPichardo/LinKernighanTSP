@@ -67,7 +67,12 @@ public class Edge implements Comparable<Edge> {
      * @return boolean true if both share the same endpoints, false otherwise
      */
     public boolean equals(Edge e2) {
+    	if(e2 == null) return false;
         return (this.get1() == e2.get1()) && (this.get2() == e2.get2());
+    }
+    
+    public String toString() {
+    	return "("+ endPoint1 + ", " + endPoint2 + ")";
     }
 
 }
