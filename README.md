@@ -1,7 +1,7 @@
 # LinKernighanTSP
 A java implementation of the -famous- Lin-Kernighan heuristics algorithm implemented for graphic (symmetric) TSP.
 
-## Characteristics
+## Features
 It implements exactly the same features described by Shen Lin and Brian Kernighan in their original paper "An Effective Heuristic Algorithm for the Traveling-Salesman Problem"
 
 In addition, this implementation reads *.tsp* files to form a representation of the TSP problem; however, the format of the *.tsp* file is not yet TSPLIB compliant, but it would be a nice and easy issue to fix.
