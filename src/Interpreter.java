@@ -21,16 +21,18 @@ public class Interpreter {
         // Initialize the class variables
         this.id = new ArrayList<Integer>();
         this.coordinates = new ArrayList<Point>();
-
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(file));
 			String line;
 			while((line = in.readLine()) != null) {
-                Token tokens = getTokens(line);
-                addId(tokens.getId());
-                addPoint(tokens.getPoint());
+				try {
+	                Token tokens = getTokens(line);
+	                addId(tokens.getId());
+	                addPoint(tokens.getPoint());
+				} catch(IllegalArgumentException e) {}
 			}
-		} catch (Exception e) {
+			in.close();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
