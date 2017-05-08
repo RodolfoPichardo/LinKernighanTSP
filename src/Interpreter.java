@@ -17,7 +17,7 @@ public class Interpreter {
      * This function takes the name of a file, opens it and parses it
      * @param String The name of the file
      */
-	public Interpreter(String file) {
+	public Interpreter(File file) {
         // Initialize the class variables
         this.id = new ArrayList<Integer>();
         this.coordinates = new ArrayList<Point>();
