@@ -33,16 +33,22 @@ public class Main{
         // Create the instance of the problem
         LinKernighan lk = new LinKernighan(in.getCoordinates(), in.getIds());
         
-        
         // Time keeping
 		long start;
 		start = System.currentTimeMillis();
-        
+		
+		// Shpw the results even if shutdown
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+            	System.out.printf("The solution took: %dms\n", System.currentTimeMillis()-start);
+                System.out.println("The solution is: ");
+                System.out.println(lk);
+            }
+         });
+		
 		lk.runAlgorithm();
 
-        System.out.printf("The solution took: %dms\n", System.currentTimeMillis()-start);
-        System.out.println("The solution is: ");
-        System.out.println(lk);
+        
 	}
 }
 
