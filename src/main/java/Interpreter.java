@@ -15,7 +15,7 @@ public class Interpreter {
     /**
      * Constructor:
      * This function takes the name of a file, opens it and parses it
-     * @param String The name of the file
+     * @param file The name of the file
      */
 	public Interpreter(File file) {
         // Initialize the class variables
@@ -29,7 +29,7 @@ public class Interpreter {
 	                Token tokens = getTokens(line);
 	                addId(tokens.getId());
 	                addPoint(tokens.getPoint());
-				} catch(IllegalArgumentException e) {}
+				} catch(IllegalArgumentException ignored) {}
 			}
 			in.close();
 		} catch (IOException e) {
@@ -39,8 +39,8 @@ public class Interpreter {
 
     /**
      * This funtion takes a string and tokenizes it. It expects the string to be have exactly 3 tokens
-     * @param String the string one wants to tokenize
-     * @return ArrayList<Array> the three tokens extracted.
+     * @param line the string one wants to tokenize
+     * @return the token extracted.
      *
      * Expects data on this format "[id] [x coordinate] [y coordinate]",
      * Example: "1 587.2 323.1"
@@ -56,14 +56,13 @@ public class Interpreter {
                 return new Token(id, x, y);
             }
 
-        } catch(Exception e) {}
+        } catch(NumberFormatException ignored) {}
         throw new IllegalArgumentException();
     }
 
     /**
      * This function adds an id to the array of ids of cities
-     * @param int the id to to be added
-     * @return void
+     * @param id the id to to be added
      */
     private void addId(int id) {
         this.id.add(id);
@@ -71,8 +70,7 @@ public class Interpreter {
 
     /**
      * This function adds an point to the array of coordinates for each city
-     * @param Point the point with the coordinates for that city
-     * @return void
+     * @param pt the point with the coordinates for that city
      */
     private void addPoint(Point pt) {
         this.coordinates.add(pt);

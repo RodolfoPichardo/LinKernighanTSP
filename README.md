@@ -1,3 +1,5 @@
+Fork from https://github.com/RodolfoPichardo/LinKernighanTSP - using sbt for building, and cleaning up the source.
+
 # LinKernighanTSP
 A java implementation of the -famous- Lin-Kernighan heuristics algorithm implemented for graphic (symmetric) TSP.
 
