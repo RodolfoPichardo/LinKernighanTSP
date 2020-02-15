@@ -5,23 +5,22 @@ import scala.collection.immutable.{IndexedSeq => Vec}
 
 /*
 
-GET_NEAREST_NEIGHBOUR    took   792 ms ( 0 %); count    8394, avg  0.1 ms
-IMPROVE_WITH             took 82903 ms (99 %); count    4755, avg 17.4 ms
-NEXT_POSSIBLE_Y          took  1099 ms ( 1 %); count   51483, avg  0.0 ms
-IS_CONNECTED             took   114 ms ( 0 %); count 1677027, avg  0.0 ms
-IS_POSITIVE_GAIN         took   403 ms ( 0 %); count 2178838, avg  0.0 ms
-SELECT_NEW_T             took 81134 ms (96 %); count   56237, avg  1.4 ms
-CONSTRUCT_NEW_TOUR_WITH  took 77250 ms (92 %); count   85232, avg  0.9 ms
-IS_TOUR                  took  3880 ms ( 4 %); count   75911, avg  0.1 ms
-GET_T_PRIME              took   626 ms ( 0 %); count     624, avg  1.0 ms
-CONSTRUCT_NEW_TOUR       took 77838 ms (92 %); count   85856, avg  0.9 ms
-CREATE_TOUR_FROM_EDGES   took 74924 ms (89 %); count   85856, avg  0.9 ms
-DERIVE_EDGES_FROM_TOUR   took   603 ms ( 0 %); count   85856, avg  0.0 ms
-IS_DISJUNCTIVE           took   257 ms ( 0 %); count 2243130, avg  0.0 ms
-INDEX_OF_NODE            took   697 ms ( 0 %); count  524111, avg  0.0 ms
-
-DERIVE_X                 took    17 ms ( 0 %); count   85856, avg  0.0 ms
-DERIVE_Y                 took    21 ms ( 0 %); count   85856, avg  0.0 ms
+IMPROVE_WITH             took 33763 ms (97 %); count    4755, avg 7.1 ms
+SELECT_NEW_T             took 32507 ms (94 %); count   56237, avg 0.6 ms
+CONSTRUCT_NEW_TOUR       took 28996 ms (84 %); count   85856, avg 0.3 ms
+CONSTRUCT_NEW_TOUR_WITH  took 28775 ms (83 %); count   85232, avg 0.3 ms
+CREATE_TOUR_FROM_EDGES   took 26671 ms (77 %); count   85856, avg 0.3 ms
+IS_TOUR                  took  3725 ms (10 %); count   75911, avg 0.0 ms
+NEXT_POSSIBLE_Y          took   979 ms ( 2 %); count   51483, avg 0.0 ms
+GET_NEAREST_NEIGHBOUR    took   733 ms ( 2 %); count    8394, avg 0.1 ms
+INDEX_OF_NODE            took   660 ms ( 1 %); count  524111, avg 0.0 ms
+DERIVE_EDGES_FROM_TOUR   took   526 ms ( 1 %); count   85856, avg 0.0 ms
+IS_POSITIVE_GAIN         took   365 ms ( 1 %); count 2178838, avg 0.0 ms
+GET_T_PRIME              took   246 ms ( 0 %); count     624, avg 0.4 ms
+IS_DISJUNCTIVE           took   224 ms ( 0 %); count 2243130, avg 0.0 ms
+IS_CONNECTED             took    98 ms ( 0 %); count 1677027, avg 0.0 ms
+DERIVE_X                 took    19 ms ( 0 %); count   85856, avg 0.0 ms
+DERIVE_Y                 took    18 ms ( 0 %); count   85856, avg 0.0 ms
 
  */
 
@@ -79,10 +78,10 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
     )
 
     println(s"Took $T_TOTAL ms")
-    timingData.foreach { case (label, t, c) =>
+    timingData.sortBy(-_._2).foreach { case (label, t, c) =>
       val labelP = (label + " " * 20).take(24)
       val avg    = if (c == 0) 0.0 else t.toDouble / c
-      println(f"$labelP took $t ms (${t * 100 / T_TOTAL} %%); count $c, avg $avg%1.1f ms")
+      println(f"$labelP took $t%5d ms (${t * 100 / T_TOTAL}%2d %%); count $c%7d, avg $avg%1.1f ms")
     }
   }
 
@@ -381,7 +380,7 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
   /*
    * This function gets a new t with the characteristics described in the paper in step 4.a.
    */
-  private def selectNewT(tIndex: Vec[Int]): Int = {
+  private def selectNewT(tIndex: Vec[Int]): Int = { // HOT
     val T0 = T()
     val lastIndex = tIndex.last
     val option1   = previousIdx(lastIndex)
@@ -401,7 +400,7 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
   private[this] var T_CONSTRUCT_NEW_TOUR_WITH = 0L
   private[this] var C_CONSTRUCT_NEW_TOUR_WITH = 0
 
-  private def constructNewTourWith(tour2: Array[Int], tIndex: Vec[Int], newItem: Int): Array[Int] = {
+  private def constructNewTourWith(tour2: Array[Int], tIndex: Vec[Int], newItem: Int): Array[Int] = { // HOT
     val T0 = T()
     val changes0  = tIndex   :+ newItem
     val changes   = changes0 :+ changes0(1)
@@ -467,14 +466,14 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
    * @param changes the list of t's to derive the X and Y sets
    * @return        an array with the node numbers
    */
-  private def constructNewTour(tour: Array[Int], changes: Vec[Int]): Array[Int] = {
+  private def constructNewTour(tour: Array[Int], changes: Vec[Int]): Array[Int] = { // HOT
     val T0 = T()
     val edges0  = deriveEdgesFromTour(tour)
     val X       = deriveX(changes)
     val Y       = deriveY(changes)
     val edges1  = edges0 diff X
     val edges   = edges1 ++   Y
-    val res = createTourFromEdges(edges)
+    val res     = createTourFromEdges(edges)
     T_CONSTRUCT_NEW_TOUR += T() - T0
     C_CONSTRUCT_NEW_TOUR += 1
     res
@@ -489,46 +488,51 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
    * @param edges The list of edges to convert
    * @return      the array representing the tour
    */
-  private def createTourFromEdges(edges: Vec[Edge]): Array[Int] = {
+  private def createTourFromEdges(edges: Vec[Edge]): Array[Int] = { // HOT
     val T0 = T()
-    val sz    = edges.size
-    val tour  = new Array[Int](sz)
-    var last  = -1
-    var currentEdges = edges
+    val sz      = edges.size
+    val tour    = new Array[Int](sz)
+    var last    = -1
+    val removed = new Array[Boolean](sz)
 
-    val i = 0 // currentEdges.indexWhere(_ != null)
-    tour(0) = currentEdges(i)._1
-    tour(1) = currentEdges(i)._2
-    last = tour(1)
 
-    currentEdges = currentEdges.updated(i, null) // remove the edges
+    val edge0   = edges.head
+    tour(0)     = edge0._1
+    tour(1)     = edge0._2
+    last        = edge0._2
+    removed(0)  = true
 
     var k = 2
 
     @tailrec
-    def inner(): Unit = { // E = find()
-      var j = 0
+    def inner(): Unit = {
+      var j = 1 // note: removed(0) == true
       var found = false
-      while (!found && j < currentEdges.size) {
-        val e = currentEdges(j)
-        if (e != null && e._1 == last) {
-          last = e._2
-          // break
-          found = true
+      while (!found && j < sz) {
+        if (!removed(j)) {
+          val e = edges(j)
+          if (e._1 == last) {
+            last = e._2
+            // break
+            found = true
 
-        } else if (e != null && e._2 == last) {
-          last = e._1
-          // break
-          found = true
+          } else if (e._2 == last) {
+            last = e._1
+            // break
+            found = true
 
+          } else {
+            j += 1
+          }
         } else {
           j += 1
         }
       }
+
       // If the list is empty
-      if (j == currentEdges.size) return // break
+      if (!found) return // break
       // Remove new edge
-      currentEdges = currentEdges.updated(j, null)
+      removed(j) = true
       if (k >= sz) return // break
       tour(k) = last
       k += 1
