@@ -111,7 +111,7 @@ public class LinKernighan {
         
         do {
         	oldDistance = newDistance;
-        	improve();
+        	improveAll();
         	newDistance = getTourDistance();
         } while (newDistance < oldDistance);
     }
@@ -119,9 +119,11 @@ public class LinKernighan {
     /**
      * This function tries to improve the tour
      */
-    public void improve() {
+    public void improveAll() {
     	for (int i = 0; i < size; ++i) {
     		improve(i);
+			System.out.println("AFTER " + (i+1));
+			System.out.println(this.toString());
     	}
     }
     

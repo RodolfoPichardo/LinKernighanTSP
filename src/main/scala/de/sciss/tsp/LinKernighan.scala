@@ -99,6 +99,8 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
     while (i < size) {
       improve(i)
       i += 1
+      println(s"AFTER $i")
+      println(this)
     }
   }
 
