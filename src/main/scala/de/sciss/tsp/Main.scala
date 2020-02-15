@@ -46,7 +46,7 @@ object Main {
     // Read the file
     val (ids, coordinates) = Interpreter(listOfFiles(idx))
     // Create the instance of the problem
-    val lk = new LinKernighan(ids, coordinates, seed = 0L)
+    val lk = new LinKernighan(ids.size, coordinates, seed = 0L)
 
     // Time keeping
     val startMillis = System.currentTimeMillis()

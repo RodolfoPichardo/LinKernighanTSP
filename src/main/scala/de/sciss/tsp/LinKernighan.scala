@@ -5,22 +5,21 @@ import scala.collection.immutable.{IndexedSeq => Vec}
 
 /*
 
-IMPROVE_WITH             took 33763 ms (97 %); count    4755, avg 7.1 ms
-SELECT_NEW_T             took 32507 ms (94 %); count   56237, avg 0.6 ms
-CONSTRUCT_NEW_TOUR       took 28996 ms (84 %); count   85856, avg 0.3 ms
-CONSTRUCT_NEW_TOUR_WITH  took 28775 ms (83 %); count   85232, avg 0.3 ms
-CREATE_TOUR_FROM_EDGES   took 26671 ms (77 %); count   85856, avg 0.3 ms
-IS_TOUR                  took  3725 ms (10 %); count   75911, avg 0.0 ms
-NEXT_POSSIBLE_Y          took   979 ms ( 2 %); count   51483, avg 0.0 ms
-GET_NEAREST_NEIGHBOUR    took   733 ms ( 2 %); count    8394, avg 0.1 ms
-INDEX_OF_NODE            took   660 ms ( 1 %); count  524111, avg 0.0 ms
-DERIVE_EDGES_FROM_TOUR   took   526 ms ( 1 %); count   85856, avg 0.0 ms
-IS_POSITIVE_GAIN         took   365 ms ( 1 %); count 2178838, avg 0.0 ms
-GET_T_PRIME              took   246 ms ( 0 %); count     624, avg 0.4 ms
-IS_DISJUNCTIVE           took   224 ms ( 0 %); count 2243130, avg 0.0 ms
-IS_CONNECTED             took    98 ms ( 0 %); count 1677027, avg 0.0 ms
-DERIVE_X                 took    19 ms ( 0 %); count   85856, avg 0.0 ms
-DERIVE_Y                 took    18 ms ( 0 %); count   85856, avg 0.0 ms
+IMPROVE_WITH             took 33689 ms (97 %); count    4755, avg 7.1 ms
+SELECT_NEW_T             took 32728 ms (95 %); count   56237, avg 0.6 ms
+CONSTRUCT_NEW_TOUR       took 28588 ms (83 %); count   85856, avg 0.3 ms
+CONSTRUCT_NEW_TOUR_WITH  took 28357 ms (82 %); count   85232, avg 0.3 ms
+CREATE_TOUR_FROM_EDGES   took 26169 ms (76 %); count   85856, avg 0.3 ms
+IS_TOUR                  took  4362 ms (12 %); count   75911, avg 0.1 ms
+GET_NEAREST_NEIGHBOUR    took   713 ms ( 2 %); count    8394, avg 0.1 ms
+NEXT_POSSIBLE_Y          took   702 ms ( 2 %); count   51483, avg 0.0 ms
+DERIVE_EDGES_FROM_TOUR   took   640 ms ( 1 %); count   85856, avg 0.0 ms
+INDEX_OF_NODE            took   633 ms ( 1 %); count  524111, avg 0.0 ms
+IS_POSITIVE_GAIN         took   198 ms ( 0 %); count 2178838, avg 0.0 ms
+IS_DISJUNCTIVE           took    79 ms ( 0 %); count 2243130, avg 0.0 ms
+IS_CONNECTED             took    47 ms ( 0 %); count 1677027, avg 0.0 ms
+DERIVE_X                 took    13 ms ( 0 %); count   85856, avg 0.0 ms
+DERIVE_Y                 took     8 ms ( 0 %); count   85856, avg 0.0 ms
 
  */
 
@@ -28,14 +27,13 @@ DERIVE_Y                 took    18 ms ( 0 %); count   85856, avg 0.0 ms
  * Constructor that creates an instance of the Lin-Kerninghan problem without
  * the optimizations. (Basically the tour it has is the drunken sailor)
  *
- * @param ids         the id of all the cities (sorted)
+ * @param size        the number of cities of this instance
  * @param coordinates the coordinates of all the cities
  * @param seed        seed for the initial random tour
  */
-final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
+final class LinKernighan(size: Int, coordinates: Vec[Point], seed: Long) {
+  require (size == coordinates.size)
 
-  // The number of cities of this instance
-  private[this] val size = ids.size
   // The current tour solution
   private[this] var tourVr: Array[Int] = createRandomTour(seed)
   // The distance table
@@ -67,7 +65,6 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
       ("SELECT_NEW_T"           , T_SELECT_NEW_T           , C_SELECT_NEW_T           ),
       ("CONSTRUCT_NEW_TOUR_WITH", T_CONSTRUCT_NEW_TOUR_WITH, C_CONSTRUCT_NEW_TOUR_WITH),
       ("IS_TOUR"                , T_IS_TOUR                , C_IS_TOUR                ),
-      ("GET_T_PRIME"            , T_GET_T_PRIME            , C_GET_T_PRIME            ),
       ("CONSTRUCT_NEW_TOUR"     , T_CONSTRUCT_NEW_TOUR     , C_CONSTRUCT_NEW_TOUR     ),
       ("CREATE_TOUR_FROM_EDGES" , T_CREATE_TOUR_FROM_EDGES , C_CREATE_TOUR_FROM_EDGES ),
       ("DERIVE_X"               , T_DERIVE_X               , C_DERIVE_X               ),
@@ -254,7 +251,13 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
   private def improveWith(t1: Int, t2: Int, t3: Int): Unit = {
     val T0 = T()
     // Start with the index 1 to be consistent with Lin-Kernighan Paper
-    var tIndex = Vector.empty[Int] :+ -1 :+ t1 :+ t2 :+ t3
+//    var tIndex = Vector.empty[Int] :+ -1 :+ t1 :+ t2 :+ t3
+    val tIndex = new Array[Int](size)
+    tIndex(0) = -1
+    tIndex(1) = t1
+    tIndex(2) = t2
+    tIndex(3) = t3
+    var tSz   = 4
 
     val G0    = getDistance(t2, t1) - getDistance(t3, t2) // |x1| - |y1|
     var GStar = 0.0
@@ -264,22 +267,25 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
 
     @tailrec
     def inner(): Unit = {
-      val newT = selectNewT(tIndex)
+      val newT = selectNewT(tIndex, tSz = tSz)
       if (newT == -1) {
         return // break
         // This should not happen according to the paper
 
       }
-      tIndex :+= newT // = tIndex.patch(i, newT :: Nil, 0)
-      val tiPlus1 = nextPossibleY(tIndex)
+      tIndex(tSz) = newT // = tIndex.patch(i, newT :: Nil, 0)
+      tSz += 1
+
+      val tiPlus1 = nextPossibleY(tIndex, tSz = tSz)
       if (tiPlus1 == -1) return // break
       // Step 4.f from the paper
-      Gi += getDistance(tIndex(tIndex.size - 2), newT)
+      Gi += getDistance(tIndex(tSz - 2), newT)
       if (Gi - getDistance(newT, t1) > GStar) {
         GStar = Gi - getDistance(newT, t1)
         k = i
       }
-      tIndex :+= tiPlus1
+      tIndex(tSz) = tiPlus1
+      tSz += 1
       Gi -= getDistance(newT, tiPlus1)
 
       i += 2
@@ -288,8 +294,8 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
 
     inner()
     if (GStar > 0) {
-      tIndex = tIndex.updated(k + 1, tIndex(1))
-      tourVr = getTPrime(tIndex, k) // Update the tour
+      tIndex(k + 1) = tIndex(1)
+      tourVr = getTPrime(tIndex, k = k) // Update the tour
     }
     T_IMPROVE_WITH += T() - T0
     C_IMPROVE_WITH += 1
@@ -304,15 +310,19 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
    * @param tIndex  the list of t's
    * @return        an array with all the possible y's
    */
-  private def nextPossibleY(tIndex: Vec[Int]): Int = {
+  private def nextPossibleY(tIndex: Array[Int], tSz: Int): Int = {
     val T0 = T()
-    val ti          = tIndex.last
+    val ti          = tIndex(tSz - 1) // tIndex.last
     var minDistance = Double.MaxValue
     var minNode     = -1
     var i = 0
     while (i < size) {
       val d = getDistance(ti, i)
-      if (d < minDistance && isDisjunctive(tIndex, i, ti) && isPositiveGain(tIndex, i) && isNextXPossible(tIndex, i)) {
+      if (d < minDistance &&
+          isDisjunctive   (tIndex, tSz = tSz, x  = i, y = ti) &&
+          isPositiveGain  (tIndex, tSz = tSz, ti = i) &&
+          isNextXPossible (tIndex, tSz = tSz, ti = i)) {
+
         minNode     = i
         minDistance = d
       }
@@ -326,16 +336,17 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
   /*
    * This function implements the part e from the point 4 of the paper
    */
-  private def isNextXPossible(tIndex: Vec[Int], i: Int): Boolean =
-    isConnected(tIndex, i, nextIdx(i)) || isConnected(tIndex, i, previousIdx(i))
+  private def isNextXPossible(tIndex: Array[Int], tSz: Int, ti: Int): Boolean =
+    isConnected(tIndex, tSz = tSz, x = ti, y = nextIdx    (ti)) ||
+    isConnected(tIndex, tSz = tSz, x = ti, y = previousIdx(ti))
 
   private[this] var T_IS_CONNECTED = 0L
   private[this] var C_IS_CONNECTED = 0
 
-  private def isConnected(tIndex: Vec[Int], x: Int, y: Int): Boolean = {
+  private def isConnected(tIndex: Array[Int], tSz: Int, x: Int, y: Int): Boolean = {
     if (x == y) return false
     var i = 1
-    val stop = tIndex.size - 1
+    val stop = tSz - 1 // tIndex.length - 1
     val T0 = T()
     while (i < stop) {
       val ta = tIndex(i); i += 1
@@ -357,15 +368,16 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
   /*
    * @return true if the gain would be positive
    */
-  private def isPositiveGain(tIndex: Vec[Int], ti: Int): Boolean = {
+  private def isPositiveGain(tIndex: Array[Int], tSz: Int, ti: Int): Boolean = {
     val T0 = T()
     var gain = 0.0
     var i = 1
-    val stop = tIndex.size - 2
+    val tSzM3 = tSz - 3
+    val stop  = tSz - 2 // tIndex.length - 2
     while (i < stop) {
       val t1 = tIndex(i)
       val t2 = tIndex(i + 1)
-      val t3 = if (i == tIndex.size - 3) ti else tIndex(i + 2)
+      val t3 = if (i == tSzM3) ti else tIndex(i + 2)
       gain += getDistance(t2, t3) - getDistance(t1, t2) // |yi| - |xi|
       i += 1
     }
@@ -380,16 +392,16 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
   /*
    * This function gets a new t with the characteristics described in the paper in step 4.a.
    */
-  private def selectNewT(tIndex: Vec[Int]): Int = { // HOT
+  private def selectNewT(tIndex: Array[Int], tSz: Int): Int = { // HOT
     val T0 = T()
-    val lastIndex = tIndex.last
+    val lastIndex = tIndex(tSz - 1) // tIndex.last
     val option1   = previousIdx(lastIndex)
-    val tour1     = constructNewTourWith(tourVr, tIndex, option1)
+    val tour1     = constructNewTourWith(tIndex, tSz = tSz, newItem = option1)
     val res       = if (isTour(tour1)) {
       option1
     } else {
       val option2 = nextIdx(lastIndex)
-      val tour2   = constructNewTourWith(tourVr, tIndex, option2)
+      val tour2   = constructNewTourWith(tIndex, tSz = tSz, newItem = option2)
       if (isTour(tour2)) option2 else -1
     }
     T_SELECT_NEW_T += T() - T0
@@ -400,11 +412,13 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
   private[this] var T_CONSTRUCT_NEW_TOUR_WITH = 0L
   private[this] var C_CONSTRUCT_NEW_TOUR_WITH = 0
 
-  private def constructNewTourWith(tour2: Array[Int], tIndex: Vec[Int], newItem: Int): Array[Int] = { // HOT
+  private def constructNewTourWith(tIndex: Array[Int], tSz: Int, newItem: Int): Array[Int] = { // HOT
     val T0 = T()
-    val changes0  = tIndex   :+ newItem
-    val changes   = changes0 :+ changes0(1)
-    val res = constructNewTour(tour2, changes)
+    val changes   = new Array[Int](tSz + 2)
+    System.arraycopy(tIndex, 0, changes, 0, tSz)
+    changes(tSz)      = newItem
+    changes(tSz + 1)  = changes(1)
+    val res = constructNewTour(changes, tSz + 2)
     T_CONSTRUCT_NEW_TOUR_WITH += T() - T0
     C_CONSTRUCT_NEW_TOUR_WITH += 1
     res
@@ -441,20 +455,11 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
     true
   }
 
-  private[this] var T_GET_T_PRIME = 0L
-  private[this] var C_GET_T_PRIME = 0
-
   /*
    * Constructs T'
    */
-  private def getTPrime(tIndex: Vec[Int], k: Int): Array[Int] = {
-    val T0 = T()
-    val al2 = tIndex.take(k + 2)
-    val res = constructNewTour(tourVr, al2)
-    T_GET_T_PRIME += T() - T0
-    C_GET_T_PRIME += 1
-    res
-  }
+  private def getTPrime(tIndex: Array[Int], /*tSz: Int,*/ k: Int): Array[Int] =
+    constructNewTour(changes = tIndex, cSz = k + 2)
 
   private[this] var T_CONSTRUCT_NEW_TOUR = 0L
   private[this] var C_CONSTRUCT_NEW_TOUR = 0
@@ -466,11 +471,11 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
    * @param changes the list of t's to derive the X and Y sets
    * @return        an array with the node numbers
    */
-  private def constructNewTour(tour: Array[Int], changes: Vec[Int]): Array[Int] = { // HOT
+  private def constructNewTour(changes: Array[Int], cSz: Int): Array[Int] = { // HOT
     val T0 = T()
-    val edges0  = deriveEdgesFromTour(tour)
-    val X       = deriveX(changes)
-    val Y       = deriveY(changes)
+    val edges0  = deriveEdgesFromTour()
+    val X       = deriveX(changes, cSz = cSz)
+    val Y       = deriveY(changes, cSz = cSz)
     val edges1  = edges0 diff X
     val edges   = edges1 ++   Y
     val res     = createTourFromEdges(edges)
@@ -491,14 +496,13 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
   private def createTourFromEdges(edges: Vec[Edge]): Array[Int] = { // HOT
     val T0 = T()
     val sz      = edges.size
-    val tour    = new Array[Int](sz)
+    val _tour   = new Array[Int](sz)
     var last    = -1
     val removed = new Array[Boolean](sz)
 
-
     val edge0   = edges.head
-    tour(0)     = edge0._1
-    tour(1)     = edge0._2
+    _tour(0)    = edge0._1
+    _tour(1)    = edge0._2
     last        = edge0._2
     removed(0)  = true
 
@@ -534,7 +538,7 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
       // Remove new edge
       removed(j) = true
       if (k >= sz) return // break
-      tour(k) = last
+      _tour(k) = last
       k += 1
       inner()
     }
@@ -542,7 +546,7 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
     inner()
     T_CREATE_TOUR_FROM_EDGES += T() - T0
     C_CREATE_TOUR_FROM_EDGES += 1
-    tour
+    _tour
   }
 
   private[this] var T_DERIVE_X = 0L
@@ -554,13 +558,12 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
    * @param changes the list of changes proposed to the tour
    * @return        The list of edges that will be deleted
    */
-  private def deriveX(changes: Vec[Int]): Vec[Edge] = {
+  private def deriveX(changes: Array[Int], cSz: Int): Vec[Edge] = {
     val T0 = T()
     var i     = 1
-    val sz    = changes.size
-    val stop  = sz - 2
+    val stop  = cSz - 2
     val es = Vector.newBuilder[Edge]
-    es.sizeHint((sz - 1) / 2) // verified
+    es.sizeHint((cSz - 1) / 2) // verified
     val _tour = tourVr
     while (i < stop) {
       val e = Edge(_tour(changes(i)), _tour(changes(i + 1)))
@@ -582,13 +585,12 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
    * @param changes the list of changes proposed to the tour
    * @return        The list of edges that will be added
    */
-  private def deriveY(changes: Vec[Int]): Vec[Edge] = {
+  private def deriveY(changes: Array[Int], cSz: Int): Vec[Edge] = {
     val T0 = T()
     var i     = 2
-    val sz    = changes.size
-    val stop  = sz - 1
+    val stop  = cSz - 1
     val es = Vector.newBuilder[Edge]
-    es.sizeHint((sz - i) / 2) // verified
+    es.sizeHint((cSz - i) / 2) // verified
     val _tour = tourVr
     while (i < stop) {
       val e = Edge(_tour(changes(i)), _tour(changes(i + 1)))
@@ -611,14 +613,15 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
    * @param tour  the array representing the tour
    * @return      The list of edges on the tour
    */
-  private def deriveEdgesFromTour(tour: Array[Int]): Vec[Edge] = {
+  private def deriveEdgesFromTour(): Vec[Edge] = {
     val T0 = T()
-    val es = Vector.newBuilder[Edge]
-    val sz = tour.length
+    val es    = Vector.newBuilder[Edge]
+    val sz    = size
+    val _tour = tourVr
     es.sizeHint(sz) // verified
     var i = 0
     while (i < sz) {
-      val e = Edge(tour(i), tour((i + 1) % sz))
+      val e = Edge(_tour(i), _tour((i + 1) % sz))
       es += e
       i += 1
     }
@@ -639,11 +642,11 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
    * @param y       the index of one of the endpoints
    * @return        true when it satisfy the criteria, false otherwise
    */
-  private def isDisjunctive(tIndex: Vec[Int], x: Int, y: Int): Boolean = {
+  private def isDisjunctive(tIndex: Array[Int], tSz: Int, x: Int, y: Int): Boolean = {
     if (x == y) return false
     val T0 = T()
     var i = 0
-    val stop = tIndex.size - 1
+    val stop = tSz - 1 // tIndex.length - 1
     while (i < stop) {
       val ta = tIndex(i); i += 1
       val tb = tIndex(i)
