@@ -10,12 +10,12 @@ import scala.collection.immutable.{IndexedSeq => Vec}
  * @param ids         the id of all the cities (sorted)
  * @param coordinates the coordinates of all the cities
  */
-final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point]) {
+final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
 
   // The number of cities of this instance
   private[this] val size = ids.size
   // The current tour solution
-  private[this] var tourVr: Array[Int] = createRandomTour()
+  private[this] var tourVr: Array[Int] = createRandomTour(seed)
   // The distance table
   private[this] val distanceTable: Array[Array[Double]] = initDistanceTable()
 
@@ -40,12 +40,12 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point]) {
    *
    * @return array with the list of nodes in the tour (sorted)
    */
-  private def createRandomTour(): Array[Int] = { // init array
+  private def createRandomTour(seed: Long): Array[Int] = { // init array
     val array = new Array[Int](size)
     for (i <- 0 until size) {
       array(i) = i
     }
-    val random = new scala.util.Random(0L)
+    val random = new scala.util.Random(seed)
     for (i <- 0 until size) {
       val index = random.nextInt(i + 1)
       // Simple swap

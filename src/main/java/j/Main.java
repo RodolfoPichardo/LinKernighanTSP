@@ -3,44 +3,64 @@ package j;
 import java.io.File;
 import java.util.Scanner;
 
-public class Main{
-
-	public static void main(String[] args) {
-    
-		System.out.println("Starting...");
-		
-		File folder = new File("data/");
-        File[] listOfFiles = folder.listFiles();
-        final int numFiles = listOfFiles == null ? 0 : listOfFiles.length;
-
+public class Main {
+    private static int getDatasetId(File[] listOfFiles) {
+        System.out.println("Starting...");
+        final int numFiles = listOfFiles.length;
         for (int i = 0; i < numFiles; i++) {
-        	String name = listOfFiles[i].getName();
-        	if (listOfFiles[i].isFile() && name.substring(name.length() - 3).equalsIgnoreCase("tsp")) {
-        		System.out.println("  [" + i + "] " + listOfFiles[i].getName());
+            String name = listOfFiles[i].getName();
+            if (listOfFiles[i].isFile() && name.substring(name.length() - 3).equalsIgnoreCase("tsp")) {
+                System.out.println("  [" + i + "] " + listOfFiles[i].getName());
             }
         }
-        
+
         @SuppressWarnings("resource")
-		Scanner scanner = new Scanner(System.in);
-        
+        Scanner scanner = new Scanner(System.in);
+
         int idx;
         do {
-	        System.out.print("Select the dataset to test: ");
-	        idx = scanner.nextInt();
-        } while(idx >= numFiles || idx < 0);
+            System.out.print("Select the dataset to test: ");
+            idx = scanner.nextInt();
+        } while (idx >= numFiles || idx < 0);
 
-        
+        return idx;
+    }
+
+    private static File[] getListOfFiles() {
+        final File      folder      = new File("data/");
+        final File[]    listOfFiles = folder.listFiles();
+        return listOfFiles == null ? new File[0] : listOfFiles;
+    }
+
+    private static int parseInt(String s) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException ex) {
+            return -1;
+        }
+    }
+
+	public static void main(String[] args) {
+        final File[] listOfFiles = getListOfFiles();
+
+        int idx = -1;
+
+        if (args.length > 0) {
+            idx = parseInt(args[0]);
+        }
+
+        if (idx < 0) idx = getDatasetId(listOfFiles);
+
 		// Read the file
-		Interpreter in = new Interpreter(listOfFiles[idx]);
+        final Interpreter in = new Interpreter(listOfFiles[idx]);
         
         // Create the instance of the problem
-        LinKernighan lk = new LinKernighan(in.getCoordinates(), in.getIds());
-        
+        final LinKernighan lk = new LinKernighan(in.getCoordinates(), in.getIds(), 0L);
+
         // Time keeping
-		long start;
-		start = System.currentTimeMillis();
+		final long start = System.currentTimeMillis();
 		
-		// Shpw the results even if shutdown
+		// Show the results even if shutdown
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
             	System.out.printf("The solution took: %dms\n", System.currentTimeMillis()-start);

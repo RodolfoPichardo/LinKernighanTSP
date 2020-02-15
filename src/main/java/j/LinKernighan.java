@@ -24,11 +24,11 @@ public class LinKernighan {
      * @param coordinates the coordinates of all the cities
      * @param ids the id of all the cities
      */ 
-    public LinKernighan(ArrayList<Point> coordinates, ArrayList<Integer> ids) {
+    public LinKernighan(ArrayList<Point> coordinates, ArrayList<Integer> ids, long seed) {
 		// The ids of all the cities (sorted)
 		this.coordinates = coordinates;
         this.size = ids.size();
-        this.tour = createRandomTour();
+        this.tour = createRandomTour(seed);
         this.distanceTable = initDistanceTable();
         
     }
@@ -37,14 +37,14 @@ public class LinKernighan {
      * This function create a random tour using the drunken sailor algorithm
      * @return array with the list of nodes in the tour (sorted)
      */
-    private int[] createRandomTour() {
+    private int[] createRandomTour(long seed) {
     	// init array
     	int[] array = new int[size];
     	for(int i = 0; i < size; i++) {
     		array[i] = i;
     	}
     	
-    	Random random = new Random(0L);
+    	Random random = new Random(seed);
     	
     	for (int i = 0; i < size; ++i) {
     		int index = random.nextInt(i + 1);
