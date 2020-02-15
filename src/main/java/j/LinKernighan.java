@@ -122,18 +122,16 @@ public class LinKernighan {
     public void improveAll() {
     	for (int i = 0; i < size; ++i) {
     		improve(i);
-			System.out.println("AFTER " + (i+1));
-			System.out.println(this.toString());
     	}
     }
     
     /**
      * This function tries to improve by stating from a particular node
 	 *
-     * @param x the reference to the city to start with.
+     * @param t1 the reference to the city to start with.
      */
-    public void improve(int x) {
-    	improve(x, false);
+    public void improve(int t1) {
+    	improve(t1, false);
     }
     
     /**
@@ -146,7 +144,7 @@ public class LinKernighan {
     	int t3 = getNearestNeighbor(t2);
     	
     	if (t3 != -1 && getTourDistance(t2, t3) < getTourDistance(t1, t2)) { // Implementing the gain criteria
-    		improveWith(t1,t2,t3);
+    		improveWith(t1, t2, t3);
     	} else if (!previous) {
     		improve(t1, true);
     	}
@@ -224,7 +222,7 @@ public class LinKernighan {
     	double GStar 	= 0.0;
     	double Gi 		= G0;
     	int k = 3;
-    	for (int i = 4;; i+=2) {
+    	for (int i = 4;; i += 2) {
     		int newT = selectNewT(tIndex);
     		if (newT == -1) {
     			break; // This should not happen according to the paper
@@ -310,17 +308,15 @@ public class LinKernighan {
      * @return true if the gain would be positive
      */
     private boolean isPositiveGain(ArrayList<Integer> tIndex, int ti) {
-		int gain = 0;
+		double gain = 0.0;
     	for (int i = 1; i < tIndex.size() - 2; ++i) {
 			int t1 = tIndex.get(i);
 			int t2 = tIndex.get(i + 1);
 			int t3 = i == tIndex.size() - 3 ? ti : tIndex.get(i + 2);
 			
 			gain += getTourDistance(t2, t3) - getTourDistance(t1, t2); // |yi| - |xi|
-			
-			
 		}
-		return gain > 0;
+		return gain > 0.0;
 	}
 
 	/**
