@@ -192,7 +192,8 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
    * @param t3 the index that references the chosen t3 in the tour
    */
   private def improveWith(t1: Int, t2: Int, t3: Int): Unit = {
-    var tIndex = Vec(-1, t1, t2, t3)  // Start with the index 1 to be consistent with Lin-Kernighan Paper
+    // Start with the index 1 to be consistent with Lin-Kernighan Paper
+    var tIndex = Vector.empty[Int] :+ -1 :+ t1 :+ t2 :+ t3
 
     val G0    = getDistance(t2, t1) - getDistance(t3, t2) // |x1| - |y1|
     var GStar = 0.0
@@ -208,7 +209,7 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
         // This should not happen according to the paper
 
       }
-      tIndex = tIndex.patch(i, newT :: Nil, 0)
+      tIndex :+= newT // = tIndex.patch(i, newT :: Nil, 0)
       val tiPlus1 = nextPossibleY(tIndex)
       if (tiPlus1 == -1) return // break
       // Step 4.f from the paper
@@ -305,7 +306,7 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
   }
 
   private def constructNewTourWith(tour2: Array[Int], tIndex: Vec[Int], newItem: Int): Array[Int] = {
-    val changes0  = tIndex :+ newItem
+    val changes0  = tIndex   :+ newItem
     val changes   = changes0 :+ changes0(1)
     constructNewTour(tour2, changes)
   }
@@ -347,31 +348,12 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
    * @return        an array with the node numbers
    */
   private def constructNewTour(tour: Array[Int], changes: Vec[Int]): Array[Int] = {
-    var edges = deriveEdgesFromTour(tour)
-    val X     = deriveX(changes)
-    val Y     = deriveY(changes)
-    var sz    = edges.size
-    // Remove Xs
-    for (e <- X) {
-      var j = 0
-      while (j < edges.size) {
-        val m = edges(j)
-        if (e == m) {
-          sz -= 1
-          edges = edges.updated(j, null)
-          // break
-          j = edges.size
-        } else {
-          j += 1
-        }
-      }
-    }
-    // Add Ys
-    for (e <- Y) {
-      sz += 1
-      edges :+= e
-    }
-    createTourFromEdges(edges, sz)
+    val edges0  = deriveEdgesFromTour(tour)
+    val X       = deriveX(changes)
+    val Y       = deriveY(changes)
+    val edges1  = edges0 diff X
+    val edges   = edges1 ++   Y
+    createTourFromEdges(edges)
   }
 
   /*
@@ -380,12 +362,13 @@ final class LinKernighan(ids: Vec[Int], coordinates: Vec[Point], seed: Long) {
    * @param edges The list of edges to convert
    * @return      the array representing the tour
    */
-  private def createTourFromEdges(edges: Vec[Edge], sz: Int): Array[Int] = {
-    val tour = new Array[Int](sz)
-    var last = -1
+  private def createTourFromEdges(edges: Vec[Edge]): Array[Int] = {
+    val sz    = edges.size
+    val tour  = new Array[Int](sz)
+    var last  = -1
     var currentEdges = edges
 
-    val i = currentEdges.indexWhere(_ != null)
+    val i = 0 // currentEdges.indexWhere(_ != null)
     tour(0) = currentEdges(i)._1
     tour(1) = currentEdges(i)._2
     last = tour(1)
