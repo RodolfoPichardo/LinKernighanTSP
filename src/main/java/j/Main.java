@@ -1,3 +1,5 @@
+package j;
+
 import java.io.File;
 import java.util.Scanner;
 
@@ -47,7 +49,7 @@ public class Main{
             }
          });
 		
-		lk.runAlgorithm();
+		lk.run();
 
         
 	}

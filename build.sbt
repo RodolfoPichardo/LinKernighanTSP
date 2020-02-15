@@ -6,16 +6,13 @@ lazy val root = project.in(file("."))
     homepage                       := Some(url(s"https://github.com/Sciss/${name.value}")),
     licenses                       := Seq("MIT" -> url("https://raw.githubusercontent.com/Sciss/LinKernighanTSP/master/LICENSE")),
     scalaVersion                   := "2.13.1",
-    crossPaths                     := false,
     javacOptions in Compile       ++= Seq("-target", "1.8", "-source", "1.8"),
     javacOptions in (Compile, doc) := Nil,
     fork                           := true,
     javaOptions  in run            += "-Xmx8G",
     connectInput in run            := true,
     outputStrategy                 := Some(StdoutOutput),
-    autoScalaLibrary               := false,
-//    testOptions in Test := Seq(Tests.Argument(TestFrameworks.JUnit, "-a"))
-    mainClass in (Compile, run) := Some("Main")
+    mainClass in (Compile, run) := Some("de.sciss.tsp.Main")
   )
   .settings(publishSettings)
 

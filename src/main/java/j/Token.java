@@ -1,3 +1,5 @@
+package j;
+
 /**
  * This class allows us to take a line from a file and parse it
  * to extract the intended variables

@@ -1,3 +1,5 @@
+package j;
+
 /**
  * This class is meant for representing the edges, it allows to store
  * the endpoints ids and compare the edges

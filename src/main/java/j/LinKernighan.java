@@ -1,3 +1,5 @@
+package j;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -31,8 +33,8 @@ public class LinKernighan {
         
     }
 
-    /**
-     * This function create a random tour using the dunken sailor algorithm
+    /*
+     * This function create a random tour using the drunken sailor algorithm
      * @return array with the list of nodes in the tour (sorted)
      */
     private int[] createRandomTour() {
@@ -42,7 +44,7 @@ public class LinKernighan {
     		array[i] = i;
     	}
     	
-    	Random random = new Random();
+    	Random random = new Random(0L);
     	
     	for (int i = 0; i < size; ++i) {
     		int index = random.nextInt(i + 1);
@@ -55,8 +57,8 @@ public class LinKernighan {
         return array;
     }
 
-    /**
-     * This functions creates a table with the distances of all the cities
+    /*
+     * This function creates a table with the distances of all the cities
      * @return a two dimensional array with all the distances
      */
     private double[][] initDistanceTable() {
@@ -82,7 +84,7 @@ public class LinKernighan {
      * This function returns the current tour distance
      * @return the distance of the tour
      */
-    public double getDistance() {
+    public double getTourDistance() {
         double sum = 0;
 
         for(int i = 0; i < this.size; i++) {
@@ -98,14 +100,14 @@ public class LinKernighan {
      * This function is the crown jewel of this class, it tries to optimize
      * the current tour
      */
-    public void runAlgorithm() {
+    public void run() {
         double oldDistance = 0.0;
-        double newDistance = getDistance();
+        double newDistance = getTourDistance();
         
         do {
         	oldDistance = newDistance;
         	improve();
-        	newDistance = getDistance();
+        	newDistance = getTourDistance();
         } while(newDistance < oldDistance);
     }
     
@@ -120,7 +122,7 @@ public class LinKernighan {
     }
     
     /**
-     * This functions tries to improve by stating from a particular node
+     * This function tries to improve by stating from a particular node
      * @param x the reference to the city to start with.
      */
     public void improve(int x){
@@ -128,15 +130,15 @@ public class LinKernighan {
     }
     
     /**
-     * This functions attempts to improve the tour by stating from a particular node
+     * This function attempts to improve the tour by stating from a particular node
      * @param t1 the reference to the city to start with.
      */
     public void improve(int t1, boolean previous) {
     	int t2 = previous? getPreviousIdx(t1): getNextIdx(t1);
     	int t3 = getNearestNeighbor(t2);
     	
-    	if(t3 != -1 && getDistance(t2, t3) < getDistance(t1, t2)) { // Implementing the gain criteria
-    		startAlgorithm(t1,t2,t3);
+    	if(t3 != -1 && getTourDistance(t2, t3) < getTourDistance(t1, t2)) { // Implementing the gain criteria
+    		improveWith(t1,t2,t3);
     	} else if(!previous) {
     		improve(t1, true);
     	}
@@ -175,7 +177,7 @@ public class LinKernighan {
     		if(i != actualNode) {
     			double distance = this.distanceTable[i][actualNode];
     			if(distance < minDistance) {
-    				nearestNode = getIndex(i);
+    				nearestNode = indexOfNode(i);
     				minDistance = distance; 
     			}
     		}
@@ -184,12 +186,12 @@ public class LinKernighan {
     }
     
     /**
-     * This functions retrieves the distance between two nodes given its indexes
+     * This function retrieves the distance between two nodes given its indexes
      * @param n1 index of the first node
      * @param n2 index of the second node
      * @return the distance from node 1 to node 2
      */
-    public double getDistance(int n1, int n2) {
+    public double getTourDistance(int n1, int n2) {
     	return distanceTable[tour[n1]][tour[n2]];
     }
     
@@ -199,13 +201,13 @@ public class LinKernighan {
      * @param t2 the index that references the chosen t2 in the tour
      * @param t3 the index that references the chosen t3 in the tour
      */
-    public void startAlgorithm(int t1, int t2, int t3) {
+    public void improveWith(int t1, int t2, int t3) {
     	ArrayList<Integer> tIndex = new ArrayList<Integer>();
     	tIndex.add(0, -1); // Start with the index 1 to be consistent with Lin-Kernighan Paper
     	tIndex.add(1, t1);
     	tIndex.add(2, t2);
     	tIndex.add(3, t3);
-    	double initialGain = getDistance(t2, t1) - getDistance(t3, t2); // |x1| - |y1|
+    	double initialGain = getTourDistance(t2, t1) - getTourDistance(t3, t2); // |x1| - |y1|
     	double GStar = 0;
     	double Gi = initialGain;
     	int k = 3;
@@ -222,14 +224,14 @@ public class LinKernighan {
     		
     		   		
     		// Step 4.f from the paper
-    		Gi += getDistance(tIndex.get(tIndex.size()-2), newT);
-    		if(Gi - getDistance(newT, t1) > GStar) {
-    			GStar = Gi - getDistance(newT, t1);
+    		Gi += getTourDistance(tIndex.get(tIndex.size()-2), newT);
+    		if(Gi - getTourDistance(newT, t1) > GStar) {
+    			GStar = Gi - getTourDistance(newT, t1);
     			k = i;
     		}
     		
     		tIndex.add(tiplus1);
-    		Gi -= getDistance(newT, tiplus1);
+    		Gi -= getTourDistance(newT, tiplus1);
     		
     		
     	}
@@ -256,7 +258,7 @@ public class LinKernighan {
     		if(!isPositiveGain(tIndex, i)) {
     			continue; // Gain criteria
     		}
-			if(!nextXPossible(tIndex, i)) {
+			if(!isNextXPossible(tIndex, i)) {
     			continue; // Step 4.f.
     		}
     		ys.add(i);
@@ -266,9 +268,9 @@ public class LinKernighan {
     	double minDistance = Double.MAX_VALUE;
     	int minNode = -1;
     	for(int i: ys) {
-    		if(getDistance(ti, i) < minDistance) {
+    		if(getTourDistance(ti, i) < minDistance) {
     			minNode = i;
-    			minDistance = getDistance(ti, i); 
+    			minDistance = getTourDistance(ti, i);
     		}
 		}
     	
@@ -279,7 +281,7 @@ public class LinKernighan {
     /**
      * This function implements the part e from the point 4 of the paper
      */
-    private boolean nextXPossible(ArrayList<Integer> tIndex, int i) {
+    private boolean isNextXPossible(ArrayList<Integer> tIndex, int i) {
     	return isConnected(tIndex, i, getNextIdx(i)) || isConnected(tIndex, i, getPreviousIdx(i));
 	}
 
@@ -302,7 +304,7 @@ public class LinKernighan {
 			int t2 = tIndex.get(i+1);
 			int t3 = i == tIndex.size()-3? ti :tIndex.get(i+2);
 			
-			gain += getDistance(t2, t3) - getDistance(t1,t2); // |yi| - |xi|
+			gain += getTourDistance(t2, t3) - getTourDistance(t1,t2); // |yi| - |xi|
 			
 			
 		}
@@ -358,7 +360,7 @@ public class LinKernighan {
     }
     
     /**
-     * Construct T prime
+     * Constructs T'
      */
     private int[] getTPrime(ArrayList<Integer> tIndex, int k) {
     	ArrayList<Integer> al2 = new ArrayList<Integer>(tIndex.subList(0, k + 2 ));
@@ -451,7 +453,7 @@ public class LinKernighan {
 	}
 
     /**
-     * Get the list of edges from the t index
+     * Gets the list of edges from the t index
      * @param changes the list of changes proposed to the tour
      * @return The list of edges that will be deleted
      */
@@ -465,7 +467,7 @@ public class LinKernighan {
 	}
 
     /**
-     * Get the list of edges from the t index
+     * Gets the list of edges from the t index
      * @param changes the list of changes proposed to the tour
      * @return The list of edges that will be added
      */
@@ -480,7 +482,7 @@ public class LinKernighan {
     
 
     /**
-     * Get the list of edges from the tour, it is basically a conversion from 
+     * Gets the list of edges from the tour, it is basically a conversion from
      * a tour to an edge list
      * @param tour the array representing the tour
      * @return The list of edges on the tour
@@ -517,7 +519,7 @@ public class LinKernighan {
      * @param node the node id
      * @return the index on the tour
      */
-    private int getIndex(int node) {
+    private int indexOfNode(int node) {
     	int i = 0;
     	for(int t: tour) {
     		if(node == t) {
@@ -533,7 +535,7 @@ public class LinKernighan {
      * @return String with the representation of the tour
      */
     public String toString() {
-        StringBuilder str = new StringBuilder("[" + this.getDistance() + "] : ");
+        StringBuilder str = new StringBuilder("[" + this.getTourDistance() + "] : ");
         boolean add = false;
         for(int city: this.tour) {
             if(add) {
