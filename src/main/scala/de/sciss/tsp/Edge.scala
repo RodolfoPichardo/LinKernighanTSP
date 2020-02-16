@@ -1,3 +1,17 @@
+/*
+ *  Edge.scala
+ *  (LinKernighanTSP)
+ *
+ *  Copyright (c) 2017 Rodolfo Pichardo.
+ *  Copyright (c) 2020 Hanns Holger Rutz.
+ *
+ *  This software is published under the MIT License
+ *
+ *
+ *  For further information, please contact Hanns Holger Rutz at
+ *  contact@sciss.de
+ */
+
 package de.sciss.tsp
 
 object Edge {
@@ -7,13 +21,4 @@ object Edge {
     new Edge(_1 = endPoint1, _2 = endPoint2)
   }
 }
-final case class Edge private(_1: Int, _2: Int) /*extends Comparable[Edge]*/ {
-//  assert (_1 >= _2)
-
-/*
-  def compareTo(that: Edge): Int =
-    if (this._1 < that._1 || this._1 == that._1 && this._2 < that._2) -1
-    else if (this == that) 0
-    else 1
-*/
-}
+final case class Edge private(_1: Int, _2: Int)

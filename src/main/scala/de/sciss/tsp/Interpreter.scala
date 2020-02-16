@@ -1,3 +1,17 @@
+/*
+ *  Interpreter.scala
+ *  (LinKernighanTSP)
+ *
+ *  Copyright (c) 2017 Rodolfo Pichardo.
+ *  Copyright (c) 2020 Hanns Holger Rutz.
+ *
+ *  This software is published under the MIT License
+ *
+ *
+ *  For further information, please contact Hanns Holger Rutz at
+ *  contact@sciss.de
+ */
+
 package de.sciss.tsp
 
 import java.io.{BufferedReader, File, FileReader}
@@ -36,6 +50,14 @@ object Interpreter {
       in.close()
     }
     (idB.result(), cB.result())
+  }
+
+  /*
+   * This class allows us to take a line from a file and parse it
+   * to extract the intended variables
+   */
+  private final case class Token(id: Int, x: Double, y: Double) {
+    val point: Point = Point(x, y)
   }
 
   /*
