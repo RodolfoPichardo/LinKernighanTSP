@@ -118,6 +118,8 @@ final class LinKernighan private(edgeWeights: Array[Array[Double]], tour0: Array
     // TIME   val avg    = if (c == 0) 0.0 else t.toDouble / c
     // TIME   println(f"$labelP took $t%5d ms (${t * 100 / T_TOTAL}%2d %%); count $c%7d, avg $avg%1.1f ms")
     // TIME }
+
+    // println(s"size = $size; MAX_TSZ = ${MAX_TSZ}")
   }
 
   /**
@@ -231,6 +233,8 @@ final class LinKernighan private(edgeWeights: Array[Array[Double]], tour0: Array
   // TIME private[this] var T_IMPROVE_WITH = 0L
   // TIME private[this] var C_IMPROVE_WITH = 0
 
+  // private[this] var MAX_TSZ = 8
+
   /*
    * This function is actually the step four from Lin-Kernighan's original paper
    *
@@ -241,7 +245,7 @@ final class LinKernighan private(edgeWeights: Array[Array[Double]], tour0: Array
   private def improveWith(t1: Int, t2: Int, t3: Int): Unit = {
     // TIME val T0 = T()
     // Start with the index 1 to be consistent with Lin-Kernighan Paper
-    val tIndex = new Array[Int](size)
+    var tIndex  = new Array[Int](8) // (size)
     tIndex(0) = -1
     tIndex(1) = t1
     tIndex(2) = t2
@@ -258,11 +262,14 @@ final class LinKernighan private(edgeWeights: Array[Array[Double]], tour0: Array
     def inner(): Unit = {
       val newT = selectNewT(tIndex, tSz = tSz)
       if (newT == -1) {
-        return // break
-        // This should not happen according to the paper
-
+        return // XXX TODO --- this should not happen according to the paper
       }
-      tIndex(tSz) = newT // = tIndex.patch(i, newT :: Nil, 0)
+      if (tSz == tIndex.length) {
+        val tIndexNew = new Array[Int](tSz << 1)  // must be even!
+        System.arraycopy(tIndex, 0, tIndexNew, 0, tSz)
+        tIndex = tIndexNew
+      }
+      tIndex(tSz) = newT
       tSz += 1
 
       val tiPlus1 = nextPossibleY(tIndex, tSz = tSz)
@@ -271,9 +278,10 @@ final class LinKernighan private(edgeWeights: Array[Array[Double]], tour0: Array
       Gi += getCost(tIndex(tSz - 2), newT)
       if (Gi - getCost(newT, t1) > GStar) {
         GStar = Gi - getCost(newT, t1)
-        k = i
+        assert (i == tSz - 1)
+        k = i   // k == tSz - 1
       }
-      tIndex(tSz) = tiPlus1
+      tIndex(tSz) = tiPlus1 // now k is <= tSz - 2
       tSz += 1
       Gi -= getCost(newT, tiPlus1)
 
@@ -288,6 +296,8 @@ final class LinKernighan private(edgeWeights: Array[Array[Double]], tour0: Array
     }
     // TIME T_IMPROVE_WITH += T() - T0
     // TIME C_IMPROVE_WITH += 1
+
+    // MAX_TSZ = math.max(MAX_TSZ, tSz)
   }
 
   // TIME private[this] var T_NEXT_POSSIBLE_Y = 0L

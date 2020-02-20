@@ -1,6 +1,6 @@
 lazy val commonSettings = Seq(
   name                           := "LinKernighanTSP",
-  version                        := "0.1.0",
+  version                        := "0.1.1",
   organization                   := "de.sciss",
   homepage                       := Some(url(s"https://git.iem.at/sciss/${name.value}")),
   licenses                       := Seq("MIT" -> url("https://raw.githubusercontent.com/Sciss/LinKernighanTSP/master/LICENSE")),

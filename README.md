@@ -28,7 +28,7 @@ To use this project as a library, use the following artifact:
 
     libraryDependencies += "de.sciss" %% "linkernighantsp" % v
 
-The current version `v` is `"0.1.0"`
+The current version `v` is `"0.1.1"`
 
 ----
 
