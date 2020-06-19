@@ -1,6 +1,6 @@
 # LinKernighanTSP
 
-[![Build Status](https://travis-ci.org/Sciss/LinKernighanTSP.svg?branch=master)](https://travis-ci.org/Sciss/LinKernighanTSP)
+[![Build Status](https://travis-ci.org/Sciss/LinKernighanTSP.svg?branch=main)](https://travis-ci.org/Sciss/LinKernighanTSP)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.sciss/linkernighantsp_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.sciss/linkernighantsp_2.12)
 
 ## statement
