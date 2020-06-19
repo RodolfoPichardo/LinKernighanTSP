@@ -1,6 +1,6 @@
 lazy val commonSettings = Seq(
   name                           := "LinKernighanTSP",
-  version                        := "0.1.1",
+  version                        := "0.1.2",
   organization                   := "de.sciss",
   homepage                       := Some(url(s"https://git.iem.at/sciss/${name.value}")),
   licenses                       := Seq("MIT" -> url("https://raw.githubusercontent.com/Sciss/LinKernighanTSP/main/LICENSE")),
@@ -13,8 +13,8 @@ lazy val commonSettings = Seq(
 lazy val root = project.in(file("."))
   .settings(commonSettings)
   .settings(
-    scalaVersion                := "2.13.1",
-    crossScalaVersions          := Seq("2.13.1", "2.12.10"),
+    scalaVersion                := "2.13.2",
+    crossScalaVersions          := Seq("2.13.2", "2.12.11"),
     mainClass in (Compile, run) := Some("de.sciss.tsp.Main")
   )
   .settings(publishSettings)
