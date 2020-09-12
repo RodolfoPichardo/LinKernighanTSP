@@ -1,7 +1,7 @@
 # LinKernighanTSP
 
 [![Build Status](https://travis-ci.org/Sciss/LinKernighanTSP.svg?branch=main)](https://travis-ci.org/Sciss/LinKernighanTSP)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.sciss/linkernighantsp_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.sciss/linkernighantsp_2.12)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.sciss/linkernighantsp_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.sciss/linkernighantsp_2.13)
 
 ## statement
 
@@ -28,7 +28,7 @@ To use this project as a library, use the following artifact:
 
     libraryDependencies += "de.sciss" %% "linkernighantsp" % v
 
-The current version `v` is `"0.1.2"`
+The current version `v` is `"0.1.3"`
 
 ----
 
