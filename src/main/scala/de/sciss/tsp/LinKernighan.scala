@@ -88,12 +88,14 @@ final class LinKernighan private(edgeWeights: Array[Array[Double]], tour0: Array
     // TIME val T0 = T()
     var oldCost = 0.0
     var newCost = tourCost
-    do {
+    while ({
       oldCost = newCost
       improveAll()
       newCost = tourCost
-    } while (newCost < oldCost)
 
+      (newCost < oldCost)
+    }) ()
+    
     // TIME val T_TOTAL = T() - T0
     // TIME val timingData = Seq(
     // TIME   ("GET_NEAREST_NEIGHBOUR"  , T_GET_NEAREST_NEIGHBOUR  , C_GET_NEAREST_NEIGHBOUR  ),

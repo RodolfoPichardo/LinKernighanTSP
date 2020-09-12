@@ -1,6 +1,12 @@
+lazy val projectVersion = "0.1.3"
+lazy val mimaVersion    = "0.1.0"
+
+lazy val baseName       = "LinKernighanTSP"
+lazy val baseNameL      = baseName.toLowerCase
+
 lazy val commonSettings = Seq(
-  name                           := "LinKernighanTSP",
-  version                        := "0.1.2",
+  name                           := baseName,
+  version                        := projectVersion,
   organization                   := "de.sciss",
   homepage                       := Some(url(s"https://git.iem.at/sciss/${name.value}")),
   licenses                       := Seq("MIT" -> url("https://raw.githubusercontent.com/Sciss/LinKernighanTSP/main/LICENSE")),
@@ -13,9 +19,10 @@ lazy val commonSettings = Seq(
 lazy val root = project.in(file("."))
   .settings(commonSettings)
   .settings(
-    scalaVersion                := "2.13.2",
-    crossScalaVersions          := Seq("2.13.2", "2.12.11"),
-    mainClass in (Compile, run) := Some("de.sciss.tsp.Main")
+    scalaVersion                := "0.27.0-RC1", // "2.13.3",
+    crossScalaVersions          := Seq("0.27.0-RC1", "2.13.3", "2.12.12"),
+    mainClass in (Compile, run) := Some("de.sciss.tsp.Main"),
+    mimaPreviousArtifacts := Set("de.sciss" %% baseNameL % mimaVersion),
   )
   .settings(publishSettings)
 

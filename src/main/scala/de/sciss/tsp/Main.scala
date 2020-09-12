@@ -37,11 +37,12 @@ object Main {
     }
     val scanner = new Scanner(System.in)
     var idx = 0
-    do {
+    while ( {
       print("Select the dataset to test: ")
       idx = scanner.nextInt()
-    } while (idx >= numFiles || idx < 0)
 
+      (idx >= numFiles || idx < 0)
+    }) ()
     idx
   }
 
