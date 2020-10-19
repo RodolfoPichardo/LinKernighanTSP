@@ -10,25 +10,28 @@ lazy val commonSettings = Seq(
   organization                   := "de.sciss",
   homepage                       := Some(url(s"https://git.iem.at/sciss/${name.value}")),
   licenses                       := Seq("MIT" -> url("https://raw.githubusercontent.com/Sciss/LinKernighanTSP/main/LICENSE")),
-  fork                           := true,
+ // fork                           := true,
   javaOptions  in run            += "-Xmx8G",
   connectInput in run            := true,
   outputStrategy                 := Some(StdoutOutput),
 )
 
-lazy val root = project.in(file("."))
+lazy val root = crossProject(JVMPlatform, JSPlatform).in(file("."))
   .settings(commonSettings)
   .settings(
-    scalaVersion                := "0.27.0-RC1", // "2.13.3",
-    crossScalaVersions          := Seq("0.27.0-RC1", "2.13.3", "2.12.12"),
+    scalaVersion                := "2.13.3",
     mainClass in (Compile, run) := Some("de.sciss.tsp.Main"),
     mimaPreviousArtifacts := Set("de.sciss" %% baseNameL % mimaVersion),
+  )
+  .jvmSettings(
+    crossScalaVersions          := Seq("0.27.0-RC1", "2.13.3", "2.12.12"),
   )
   .settings(publishSettings)
 
 lazy val javaProject = project.in(file("java"))
   .settings(commonSettings)
   .settings(
+    fork := true,
     javacOptions in Compile        ++= Seq("-target", "1.8", "-source", "1.8"),
     javacOptions in (Compile, doc)  := Nil,
     crossScalaVersions              := Seq(scalaVersion.value),
