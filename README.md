@@ -17,7 +17,7 @@ and the initial tour has to be explicitly provided.
 
 ## building and running
 
-This project builds with sbt against Scala 2.13, 2.12.
+This project builds with sbt against Scala 2.13, 2.12, Dotty (JVM) and Scala 2.13 (JS).
 
 To compile, use `sbt compile`, to run the demo use `sbt run`. You can also provide a dataset number, e.g.
 `sbt 'run 17'`.
