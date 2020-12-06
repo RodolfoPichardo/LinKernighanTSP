@@ -4,10 +4,14 @@ lazy val mimaVersion    = "0.1.0"
 lazy val baseName       = "LinKernighanTSP"
 lazy val baseNameL      = baseName.toLowerCase
 
+// sonatype plugin requires that these are in global
+ThisBuild / version      := projectVersion
+ThisBuild / organization := "de.sciss"
+
 lazy val commonSettings = Seq(
   name                           := baseName,
-  version                        := projectVersion,
-  organization                   := "de.sciss",
+//  version                        := projectVersion,
+//  organization                   := "de.sciss",
   homepage                       := Some(url(s"https://git.iem.at/sciss/${name.value}")),
   licenses                       := Seq("MIT" -> url("https://raw.githubusercontent.com/Sciss/LinKernighanTSP/main/LICENSE")),
  // fork                           := true,
@@ -19,12 +23,12 @@ lazy val commonSettings = Seq(
 lazy val root = crossProject(JVMPlatform, JSPlatform).in(file("."))
   .settings(commonSettings)
   .settings(
-    scalaVersion                := "2.13.3",
+    scalaVersion                := "2.13.4",
     mainClass in (Compile, run) := Some("de.sciss.tsp.Main"),
     mimaPreviousArtifacts := Set("de.sciss" %% baseNameL % mimaVersion),
   )
   .jvmSettings(
-    crossScalaVersions          := Seq("0.27.0-RC1", "2.13.3", "2.12.12"),
+    crossScalaVersions          := Seq("3.0.0-M2", "2.13.4", "2.12.12"),
   )
   .settings(publishSettings)
 
@@ -43,31 +47,26 @@ lazy val javaProject = project.in(file("java"))
 
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
-  publishTo := {
-    Some(if (isSnapshot.value)
-      "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
-    else
-      "Sonatype Releases"  at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-    )
-  },
   publishArtifact in Test := false,
   pomIncludeRepository := { _ => false },
-  pomExtra := { val n = name.value
-    <scm>
-      <url>git@git.iem.at:sciss/{n}.git</url>
-      <connection>scm:git:git@git.iem.at:sciss/{n}.git</connection>
-    </scm>
-      <developers>
-        <developer>
-          <id>Jilocasin</id>
-          <name>Daniel Obermeier</name>
-          <url>https://jilocasin.de/</url>
-        </developer>
-        <developer>
-          <id>sciss</id>
-          <name>Hanns Holger Rutz</name>
-          <url>http://www.sciss.de</url>
-        </developer>
-      </developers>
-  }
+  developers := List(
+    Developer(
+      id    = "Jilocasin",
+      name  = "Daniel Obermeier",
+      email = "mail@jilocasin.de",
+      url   = url("https://jilocasin.de/"),
+    ),
+    Developer(
+      id    = "sciss",
+      name  = "Hanns Holger Rutz",
+      email = "contact@sciss.de",
+      url   = url("https://www.sciss.de"),
+    ),
+  ),
+  scmInfo := {
+    val h = "git.iem.at"
+    val a = s"sciss/${name.value}"
+    Some(ScmInfo(url(s"https://$h/$a"), s"scm:git@$h:$a.git"))
+  },
 )
+
