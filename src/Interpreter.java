@@ -24,6 +24,13 @@ public class Interpreter {
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(file));
 			String line;
+
+            while ((line = in.readLine()) != null) {
+                if (line.equals("NODE_COORD_SECTION")) {
+                    break;
+                }
+            }
+
 			while((line = in.readLine()) != null) {
 				try {
 	                Token tokens = getTokens(line);
